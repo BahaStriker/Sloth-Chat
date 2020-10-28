@@ -1,0 +1,52 @@
+<template>
+  <q-page class="flex q-pa-md">
+    <q-list class="full-width" separator>
+      <q-item v-for="user in users" :key="user.staffid" to="/chat" clickable v-ripple>
+        <q-item-section avatar>
+          <q-avatar>
+            <img :src="getImage(user.staffid, user.profile_image)">
+          </q-avatar>
+        </q-item-section>
+
+        <q-item-section>
+          <q-item-label>{{ user.firstname }} {{ user.lastname }}</q-item-label>
+        </q-item-section>
+
+        <q-item-section side>
+          <q-btn dense round flat icon="email">
+          </q-btn>
+        </q-item-section>
+      </q-item>
+    </q-list>
+  </q-page>
+</template>
+
+<script>
+import {axiosInstance} from 'boot/api'
+export default {
+  data () {
+    return {
+      users: {}
+    }
+  },
+  methods: {
+    getImage(id, url) {
+      return "https://panel.sloth-lab.com/uploads/staff_profile_images/" + id + "/small_" + url;
+    },
+    async fetchStaff() {
+      await axiosInstance.get("/staffOnline").then(response => {
+        this.users = response.data.staff;
+      })
+      .catch(e => {
+        console.log(e.message)
+      })
+    }
+  },
+  mounted() {
+    this.fetchStaff();
+  }
+}
+</script>
+<style>
+
+</style>
