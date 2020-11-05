@@ -41,6 +41,7 @@ const actions = {
     axiosInstance.post("/logout").then(() => {
         commit("setUserData", null);
         LocalStorage.remove('token');
+        this.$router.push("/login");
     });
   }
 }

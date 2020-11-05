@@ -1,7 +1,7 @@
 <template>
   <q-page class="flex q-pa-md">
     <q-list class="full-width" separator>
-      <q-item v-for="user in users" :key="user.staffid" to="/chat" clickable v-ripple>
+      <q-item v-for="user in users" :key="user.staffid" :to="{ path:'/chat/' + user.staffid }" clickable v-ripple>
         <q-item-section avatar>
           <q-avatar>
             <img :src="getImage(user.staffid, user.profile_image)">

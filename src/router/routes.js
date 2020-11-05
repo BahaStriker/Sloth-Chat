@@ -21,7 +21,7 @@ const routes = [
     component: () => import('layouts/MainLayout.vue'),
     children: [
       { path: '', beforeEnter: auth, component: () => import('pages/PageStaff.vue') },
-      { path: '/chat', beforeEnter: auth, component: () => import('pages/PageChat.vue') },
+      { path: '/chat/:id', beforeEnter: auth, component: () => import('pages/PageChat.vue') },
       { path: '/login', beforeEnter: guest, component: () => import('pages/PageAuth.vue') }
     ]
   },

@@ -12,6 +12,8 @@
     "@quasar/extras": "^1.0.0",
     "axios": "^0.21.0",
     "core-js": "^3.6.5",
+    "laravel-echo": "^1.9.0",
+    "pusher-js": "^7.0.1",
     "quasar": "^1.0.0"
   },
   "devDependencies": {
