@@ -9,7 +9,8 @@
           {{ title }}
         </q-toolbar-title>
 
-        <q-btn v-if="isLoggedin"  @click="logout" icon="account_circle" class="absolute-right q-pr-sm" flat no-caps dense label="Logout" />
+        <q-btn v-if="userData" @click="sendLogoutRequest" icon="account_circle" class="absolute-right q-pr-sm" flat
+          no-caps dense label="Logout" />
 
       </q-toolbar>
     </q-header>
@@ -21,35 +22,42 @@
 </template>
 
 <script>
-import { LocalStorage } from 'quasar';
-import { mapActions } from "vuex";
-export default {
-  methods: {
-    ...mapActions("store", ["sendLogoutRequest"]),
-
-    async logout() {
-      await this.sendLogoutRequest().then(() => {
-          this.$router.push("/login");
-      });
-    }
-  },
-  computed: {
-    title () {
-      const currentPath = this.$route.fullPath
-      if (currentPath == '/') return 'Sloth-Lab Chat'
-      else if (currentPath == '/chat') return 'Chat'
-      else if (currentPath == '/login') return 'Login'
+  import {
+    LocalStorage
+  } from 'quasar';
+  import {
+    mapActions,
+    mapState
+  } from "vuex";
+  import {
+    axiosInstance
+  } from 'boot/api';
+  import 'boot/async';
+  export default {
+    methods: {
+      ...mapActions("store", ["sendLogoutRequest"])
     },
-    isLoggedin() {
-      const currentPath = this.$route.fullPath
-      if(currentPath == '/login') {
-        return false
-      }
-      else {
-        return true;
-      }
+    computed: {
+      ...mapState("store", ['userData']),
+    },
+    asyncComputed: {
+      title() {
+        const currentPath = this.$route.fullPath
+        if (currentPath == '/') {
+          return 'Sloth-Lab Chat'
+        } else if (currentPath.includes('/chat')) {
+          if(this.$route.params.id) {
+            return new Promise((resolve, reject) => {
+              resolve(axiosInstance.get("/staff/" + this.$route.params.id).then(response => {
+                return response.data.staff[0].firstname + ' ' + response.data.staff[0].lastname;
+              }))
+            })
+          }
+        } else if (currentPath == '/login') {
+          return 'Login'
+        }
+      },
     }
-
   }
-}
+
 </script>

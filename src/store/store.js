@@ -2,12 +2,16 @@ import {axiosInstance} from 'boot/api';
 import { LocalStorage } from 'quasar';
 
 const state = {
-  userData: null
+  userData: {},
+  users: {},
 }
 
 const mutations = {
   setUserData(state, user) {
     state.userData = user;
+  },
+  addUsers(state, users) {
+    state.users = users;
   }
 }
 
@@ -17,10 +21,9 @@ const actions = {
       const token = response.data.access_token;
       axiosInstance.defaults.headers.common['Authorization'] = 'Bearer ' + token;
       LocalStorage.set('token', token);
-      this.$router.push("/");
     })
     .catch(e => {
-      console.log(e.message);
+      console.log("Action sendLoginRequest : ", e.message);
       alert("E-mail and/or Password Incorrect!");
     });
   },
@@ -29,25 +32,44 @@ const actions = {
     if(token){
       axiosInstance.defaults.headers.common['Authorization'] = 'Bearer ' + token;
       return axiosInstance.get("/me").then(response => {
-        commit("setUserData", response.data);
+        commit("setUserData", response.data.auth);
       })
       .catch(e => {
-        console.log(e.message)
+        console.log("Action getUserData : ", e.message)
       })
     }
 
   },
-  sendLogoutRequest({ commit }) {
+  sendLogoutRequest({}) {
     axiosInstance.post("/logout").then(() => {
-        commit("setUserData", null);
         LocalStorage.remove('token');
-        this.$router.push("/login");
+        window.location.reload();
     });
-  }
+  },
+  handleAuthStateChanged({ commit, dispatch }) {
+		axiosInstance.get("/me").then(user => {
+		  if (user.data.auth) {
+        commit('setUserData', user.data.auth);
+        dispatch('getUsers');
+		  }
+		  else {
+        commit('setUserData', {});
+        LocalStorage.remove('token');
+		  }
+		})
+  },
+  getUsers({ commit }) {
+		axiosInstance.get("/staffOnline").then(response => {
+			commit('addUsers', response.data.staff);
+    })
+    .catch(e => {
+      console.log("Action getUsers : ", e.message)
+    });
+	},
 }
 
 const getters = {
-  user: state => state.userData
+	users: state => state.users
 }
 
 export default {

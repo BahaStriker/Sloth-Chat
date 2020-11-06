@@ -23,27 +23,16 @@
 
 <script>
 import {axiosInstance} from 'boot/api'
+import { mapGetters } from 'vuex'
 export default {
-  data () {
-    return {
-      users: {}
-    }
-  },
   methods: {
     getImage(id, url) {
       return "https://panel.sloth-lab.com/uploads/staff_profile_images/" + id + "/small_" + url;
-    },
-    async fetchStaff() {
-      await axiosInstance.get("/staffOnline").then(response => {
-        this.users = response.data.staff;
-      })
-      .catch(e => {
-        console.log(e.message)
-      })
     }
   },
-  mounted() {
-    this.fetchStaff();
+
+  computed: {
+    ...mapGetters('store', ['users'])
   }
 }
 </script>
