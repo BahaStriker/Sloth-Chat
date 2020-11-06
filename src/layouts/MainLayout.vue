@@ -2,7 +2,7 @@
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
       <q-toolbar>
-        <q-btn v-if="$route.fullPath.includes('/')" flat @click="drawer = !drawer" round dense icon="menu" />
+        <q-btn v-if="$route.fullPath == '/'" flat @click="drawer = !drawer" round dense icon="menu" />
         <q-btn v-if="$route.fullPath.includes('/chat')" v-go-back.single icon="arrow_back" flat dense />
 
         <q-toolbar-title class="absolute-center">
@@ -29,7 +29,7 @@
               </q-item-section>
 
               <q-item-section>
-                <div class="text-weight-bold">{{userData.firstname}}{{userData.lastname}}</div>
+                <div class="text-weight-bold">{{userData.firstname}} {{userData.lastname}}</div>
               </q-item-section>
             </q-item>
 
@@ -37,8 +37,8 @@
               <q-item-section avatar>
                 <q-icon name="mail" />
               </q-item-section>
-              <q-item-section>
-                <div>{{userData.email}}</div>
+              <q-item-section style="margin-left: -4%;">
+                <div style="font-size: 12px">{{userData.email}}</div>
               </q-item-section>
             </q-item>
 
@@ -49,7 +49,7 @@
         <q-img class="absolute-top" src="https://cdn.quasar.dev/img/material.png" style="height: 150px">
           <div class="bg-transparent" style="margin-bottom: 180px">
             
-        <q-avatar size="102px" class="center">
+        <q-avatar size="102px" class="imgcenter">
               <img :src="getImage(userData.staffid, userData.profile_image)" round class="items-center" >
         </q-avatar>
             
@@ -85,24 +85,28 @@
   },
     methods: {
       ...mapActions("store", ["sendLogoutRequest"]),
+
       getImage(id, url) {
         return "https://panel.sloth-lab.com/uploads/staff_profile_images/" + id + "/small_" + url;
       },
+
     },
     computed: {
       ...mapState("store", ['userData']),
     },
    
+
+   
     asyncComputed: {
       title() {
         const currentPath = this.$route.fullPath
         if (currentPath == '/') {
-          return 'Sloth-Lab Chat'
+          return 'Staff'
         } else if (currentPath.includes('/chat')) {
           if(this.$route.params.id) {
             return new Promise((resolve, reject) => {
               resolve(axiosInstance.get("/staff/" + this.$route.params.id).then(response => {
-                return response.data.staff[0].firstname + ' ' + response.data.staff[0].lastname;
+                return response.data.staff[0].firstname;
               }))
             })
           }
@@ -117,7 +121,7 @@
 
 
 <style>
-.center {
+.imgcenter {
      margin-top: 10% !important;
     margin-left: 35% !important;
 }
