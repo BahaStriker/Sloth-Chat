@@ -1,14 +1,16 @@
 <template>
   <q-page ref="pageChat" class="flex column">
     <div class="page-chat q-pa-md column col justify-end">
-      <q-chat-message v-for="message in messages" :key="message.id" :name="message.sender_id == auth.staffid ? auth.firstname+' '+auth.lastname : receiver.firstname+''+receiver.lastname" :text="[createTextLinks(message.message)]"
-        :sent="message.sender_id == auth.staffid ? true : false" :bg-color="message.sender_id == auth.staffid ? 'amber-1' : 'amber-2'"
-        :stamp="message.time_sent" />
+      <q-chat-message v-for="message in messages" :key="message.id"
+        :name="message.sender_id == auth.staffid ? auth.firstname+' '+auth.lastname : receiver.firstname+''+receiver.lastname"
+        :text="[createTextLinks(message.message)]" :sent="message.sender_id == auth.staffid ? true : false"
+        :bg-color="message.sender_id == auth.staffid ? 'amber-1' : 'amber-2'" :stamp="message.time_sent" />
     </div>
     <q-footer elevated>
       <q-toolbar>
         <q-form @submit="sendMessage" class="full-width">
-          <q-input @blur="scrollToBottom" ref="newMessage" bg-color="white" v-model="newMessage.message" outlined rounded label="Message" dense>
+          <q-input @blur="scrollToBottom" ref="newMessage" bg-color="white" v-model="newMessage.message" outlined
+            rounded label="Message" dense>
 
             <template v-slot:after>
               <q-btn round dense flat color="white" icon="send" @click.prevent="sendMessage" />
@@ -22,8 +24,12 @@
 </template>
 
 <script>
-import {axiosInstance} from 'boot/api'
-import {EchoInstance} from 'boot/echo'
+  import {
+    axiosInstance
+  } from 'boot/api'
+  import {
+    PusherInstance
+  } from 'boot/echo'
 
   export default {
 
@@ -36,61 +42,66 @@ import {EchoInstance} from 'boot/echo'
         messages: [],
         receiver: {},
         auth: {},
+        pusher: PusherInstance.subscribe('presence-mychanel'),
       }
     },
     methods: {
       createTextLinks(text) {
         var regex = (/\.(gif|jpg|jpeg|tiff|png|swf)$/i);
         return (text || "").replace(/([^\S]|^)(((https?\:\/\/)|(www\.))(\S+))/gi, function (match, string, url) {
-            var hyperlink = url;
-            if (!hyperlink.match('^https?:\/\/')) {
-                hyperlink = '//' + hyperlink;
-            }
-            if (hyperlink.match('^http?:\/\/')) {
-                hyperlink = hyperlink.replace('http://', '//');
-            }
-            if (hyperlink.match(regex)) {
-                return string + '<a href="' + hyperlink + '" target="blank" data-lity><img style="width:100%;height:100%;padding-top:2px;" rel="nofollow" src="' + hyperlink + '"/></a>';
-            } else {
-                return string + '<a data-lity target="blank" rel="nofollow" href="' + hyperlink + '">' + url + '</a>';
-            }
+          var hyperlink = url;
+          if (!hyperlink.match('^https?:\/\/')) {
+            hyperlink = '//' + hyperlink;
+          }
+          if (hyperlink.match('^http?:\/\/')) {
+            hyperlink = hyperlink.replace('http://', '//');
+          }
+          if (hyperlink.match(regex)) {
+            return string + '<a href="' + hyperlink +
+              '" target="blank" data-lity><img style="width:100%;height:100%;padding-top:2px;" rel="nofollow" src="' +
+              hyperlink + '"/></a>';
+          } else {
+            return string + '<a data-lity target="blank" rel="nofollow" href="' + hyperlink + '">' + url + '</a>';
+          }
         });
       },
       getMessages() {
         axiosInstance.get("/messages/" + this.$route.params.id).then(response => {
-          this.auth = response.data.auth;
-          this.receiver = response.data.receiver;
-          this.messages = JSON.parse(response.data.message);
-          this.newMessage.reciever_id = response.data.receiver.staffid;
-          this.scrollToBottom();
-        })
-        .catch(e => {
-          console.log(e.message)
-        })
+            this.auth = response.data.auth;
+            this.receiver = response.data.receiver;
+            var messages = JSON.stringify(response.data.message)
+            this.messages = JSON.parse(messages);
+            this.newMessage.reciever_id = response.data.receiver.staffid;
+            this.scrollToBottom();
+          })
+          .catch(e => {
+            console.log(e)
+          })
       },
       sendMessage() {
-        axiosInstance.post("/newmsg", this.newMessage).then(response =>{
+        axiosInstance.post("/newmsg", this.newMessage).then(response => {
           this.getMessages();
           this.newMessage.message = '';
           this.scrollToBottom();
           this.$refs.newMessage.focus();
         }).catch(e => {
-          alert(e.message);
+          console.log(e);
         })
       },
       scrollToBottom() {
-	  		let pageChat = this.$refs.pageChat.$el;
-	  		setTimeout(() => {
-		  		window.scrollTo(0, pageChat.scrollHeight)
-	  		}, 20);
-	  	}
+        let pageChat = this.$refs.pageChat.$el;
+        setTimeout(() => {
+          window.scrollTo(0, pageChat.scrollHeight)
+        }, 20);
+      }
     },
     mounted() {
-      EchoInstance.channel('presence-mychanel') //Should be Channel Name
-      .listen('send-event', (e) => {
-        console.log(e);
-      });
-      console.log("mounted");
+      this.pusher.bind('send-event',
+        function(data) {
+          console.log(data);
+        }
+      );
+      console.log(this.pusher);
     },
     created() {
       setTimeout(() => {
@@ -102,7 +113,7 @@ import {EchoInstance} from 'boot/echo'
 
 </script>
 <style lang="stylus">
-	.page-chat
+.page-chat
 		background #e2dfd5
 		&:after
 			content ''

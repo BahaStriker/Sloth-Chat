@@ -19,7 +19,8 @@
   },
   "devDependencies": {
     "@quasar/app": "^2.0.0",
-    "babel-eslint": "^10.0.1"
+    "babel-eslint": "^10.0.1",
+    "workbox-webpack-plugin": "^5.1.4"
   },
   "browserslist": [
     "last 10 Chrome versions",
