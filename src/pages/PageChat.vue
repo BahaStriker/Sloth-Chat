@@ -46,6 +46,13 @@
       }
     },
     methods: {
+      getDateNow() {
+        var today = new Date();
+        var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+        var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+        var dateTime = date+' '+time;
+        return dateTime;
+      },
       createTextLinks(text) {
         var regex = (/\.(gif|jpg|jpeg|tiff|png|swf)$/i);
         return (text || "").replace(/([^\S]|^)(((https?\:\/\/)|(www\.))(\S+))/gi, function (match, string, url) {
@@ -65,8 +72,8 @@
           }
         });
       },
-      getMessages() {
-        axiosInstance.get("/messages/" + this.$route.params.id).then(response => {
+      async getMessages() {
+        await axiosInstance.get("/messages/" + this.$route.params.id).then(response => {
             this.auth = response.data.auth;
             this.receiver = response.data.receiver;
             var messages = JSON.stringify(response.data.message)
@@ -80,7 +87,6 @@
       },
       sendMessage() {
         axiosInstance.post("/newmsg", this.newMessage).then(response => {
-          this.getMessages();
           this.newMessage.message = '';
           this.scrollToBottom();
           this.$refs.newMessage.focus();
@@ -95,19 +101,29 @@
         }, 20);
       }
     },
-    mounted() {
-      this.pusher.bind('send-event',
-        function(data) {
-          console.log(data);
-        }
-      );
-      console.log(this.pusher);
-    },
-    created() {
+    async created() {
       setTimeout(() => {
         this.scrollToBottom();
       }, 1000);
-      this.getMessages();
+      await this.getMessages();
+      this.pusher.bind('send-event',
+        (data) => {
+          if((data.to == this.auth.staffid || data.from == this.auth.staffid) && (data.to == this.receiver.staffid || data.from == this.receiver.staffid)){
+            this.messages.push({
+              'id' : data.last_insert_id,
+              'is_deleted' : 0,
+              'message' : data.message,
+              'reciever_id' : parseInt(data.to),
+              'sender_id' : parseInt(data.from),
+              'time_sent' : this.getDateNow(),
+              'viewed': 0
+            });
+            setTimeout(() => {
+              this.scrollToBottom();
+            }, 100);
+          }
+        }
+      );
     }
   }
 
