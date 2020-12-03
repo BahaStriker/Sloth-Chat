@@ -34,6 +34,20 @@ const PusherInstance = new Pusher("2f2cda0d346bf1eff587", {
   encrypted: false,
 });
 
+const PusherMain = new Pusher("2f2cda0d346bf1eff587", {
+  authEndpoint: "https://apichat.sloth-lab.com/api/broadcasting/auth",
+  auth: {
+    headers: {
+      Accept: "application/json",
+      Authorization: "Bearer " + LocalStorage.getItem('token')
+    }
+  },
+  //authTransport: 'jsonp',
+  'cluster': 'eu',
+  disableStats: true,
+  encrypted: false,
+});
+
 export {
-  PusherInstance
+  PusherInstance, PusherMain
 }

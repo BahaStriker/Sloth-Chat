@@ -89,7 +89,7 @@
         axiosInstance.post("/newmsg", this.newMessage).then(response => {
           this.newMessage.message = '';
           this.scrollToBottom();
-          this.$refs.newMessage.focus();
+          this.$refs.newMessage();
         }).catch(e => {
           console.log(e);
         })
@@ -124,7 +124,14 @@
           }
         }
       );
+
+     /*this.pusher.members.each(function(member) {
+      console.log('user id',member.id ) 
+       console.log('user info',member.info ) 
+      
+});*/
     }
+    
   }
 
 </script>
