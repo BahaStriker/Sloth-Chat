@@ -7,14 +7,17 @@
 import { mapActions } from 'vuex'
 export default {
   methods: {
-    ...mapActions('store', ['handleAuthStateChanged'])
+    ...mapActions('store', ['handleAuthStateChanged']),
+
+    onDeviceReady() {
+      console.log('cordova', window.cordova);
+      console.log('device', window.device);
+    }
+
   },
   mounted() {
     this.handleAuthStateChanged();
-    document.addEventListener('deviceready', () => {
-      // it's only now that we are sure
-      // the event has triggered
-    }, false);
+    document.addEventListener('deviceready', this.onDeviceReady, false)
   },
   updated() {
     this.handleAuthStateChanged()

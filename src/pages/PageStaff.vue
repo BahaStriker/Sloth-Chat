@@ -73,14 +73,17 @@ document.addEventListener('deviceready', () => {
         this.pusher.bind('notify-event', data => {
           if (data.to == this.userData.staffid) {
               navigator.vibrate([3000]);
-              navigator.notification.alert(
-                data.message,
-                'New Message',
-                data.from_name
-              );
-              navigator.notification.beep(2);
-              new Notification('New Message', { body: data.message });
-
+              cordova.plugins.notification.local.schedule({
+                  title: 'Message: '+data.from_name,
+                  text: data.message,
+                  foreground: true,
+                  actions: [{
+                      id: 'reply',
+                      type: 'input',
+                      title: 'Reply',
+                      emptyText: 'Type message...',
+                  }]
+              });
           }
         });
       }
