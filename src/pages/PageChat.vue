@@ -1,4 +1,5 @@
 <template>
+<q-pull-to-refresh @refresh="refresh">
   <q-page ref="pageChat" class="flex column">
     <div class="page-chat q-pa-md column col justify-end">
       <q-chat-message v-for="message in messages" :key="message.id"
@@ -21,6 +22,7 @@
       </q-toolbar>
     </q-footer>
   </q-page>
+</q-pull-to-refresh>
 </template>
 
 <script>
@@ -46,6 +48,12 @@
       }
     },
     methods: {
+      refresh (done) {
+        setTimeout(() => {
+          window.location.reload();
+          done();
+        }, 1000)
+      },
       getDateNow() {
         var today = new Date();
         var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
@@ -102,6 +110,7 @@
       }
     },
     async created() {
+
       setTimeout(() => {
         this.scrollToBottom();
       }, 1000);
@@ -124,14 +133,8 @@
           }
         }
       );
-
-     /*this.pusher.members.each(function(member) {
-      console.log('user id',member.id ) 
-       console.log('user info',member.info ) 
-      
-});*/
     }
-    
+
   }
 
 </script>

@@ -21,6 +21,8 @@ const actions = {
       const token = response.data.access_token;
       axiosInstance.defaults.headers.common['Authorization'] = 'Bearer ' + token;
       LocalStorage.set('token', token);
+      LocalStorage.remove('out');
+      window.location.reload();
     })
     .catch(e => {
       console.log("Action sendLoginRequest : ", e.message);
@@ -32,7 +34,7 @@ const actions = {
     if(token){
       axiosInstance.defaults.headers.common['Authorization'] = 'Bearer ' + token;
       return axiosInstance.get("/me").then(response => {
-        commit("setUserData", response.data.auth);
+          commit("setUserData", response.data.auth);
       })
       .catch(e => {
         console.log("Action getUserData : ", e.message)
@@ -56,7 +58,17 @@ const actions = {
         commit('setUserData', {});
         LocalStorage.remove('token');
 		  }
-		})
+    })
+    .catch(e => {
+      commit('setUserData', {});
+      LocalStorage.remove('token');
+
+      if(LocalStorage.get('out') !== 1){
+        LocalStorage.set('out', 1);
+        window.location.reload();
+      }
+      console.log('handleAuthStateChanged : ', e.message);
+    })
   },
   getUsers({ commit }) {
 		axiosInstance.get("/staffOnline").then(response => {

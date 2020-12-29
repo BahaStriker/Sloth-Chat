@@ -1,14 +1,16 @@
 import { LocalStorage } from 'quasar';
 
+const token = LocalStorage.getItem("token");
+
 const guest = (to, from, next) => {
-  if (!LocalStorage.getItem("token")) {
+  if (!token) {
       return next();
   } else {
       return next("/");
   }
 };
 const auth = (to, from, next) => {
-  if (LocalStorage.getItem("token")) {
+  if (token) {
       return next();
   } else {
       return next("/login");

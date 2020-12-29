@@ -10,7 +10,11 @@ export default {
     ...mapActions('store', ['handleAuthStateChanged'])
   },
   mounted() {
-    this.handleAuthStateChanged()
+    this.handleAuthStateChanged();
+    document.addEventListener('deviceready', () => {
+      // it's only now that we are sure
+      // the event has triggered
+    }, false);
   },
   updated() {
     this.handleAuthStateChanged()
